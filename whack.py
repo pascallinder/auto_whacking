@@ -67,9 +67,9 @@ def autoCalibration():
 
             if win32gui.GetWindowText(hwnd) == "Farmer Against Potatoes Idle":
                 windowX = rect[0] + 9
-                windowY = rect[1] + 35
-                windowWidth = rect[2] - windowX
-                windowHeight = rect[3] - windowY
+                windowY = rect[1] + 34
+                windowWidth = rect[2] - windowX - 8
+                windowHeight = rect[3] - windowY - 8
                 calculatePositions(windowX,windowY,windowWidth,windowHeight)
         win32gui.EnumWindows(callback, None)
     elif sys.platform == "linux" or sys.platform == "linux2":
@@ -84,71 +84,92 @@ def calculatePositions(uncorrectedWindowX,uncorrectedWindowY, uncorrectedWindowW
         global sceneScreenshotCornerX, sceneScreenshotCornerY, sceneScreenshotWidth, sceneScreenshotHeight, leftBorderToToilet
         global topBorderToToilet, toToiletMiddle, toiletToToiletX, toiletToToiletY, startButtonX, startButtonY, startScreenshotCornerX, startScreenshotCornerY
         global  comboX, comboY, comboMiddleX,comboMiddleY, comboToComboY, comboScreenshotHeight,comboScreenshotWidth
+        global windowX, windowY, windowWidth, windowHeight
+        try:
+            screenshot = pg.screenshot(region=(uncorrectedWindowX, uncorrectedWindowY, uncorrectedWindowWidth, uncorrectedWindowHeight))
+            screenshot.save("test.jpg")
+            for i in range(4, uncorrectedWindowWidth):
+                r,g,b = screenshot.getpixel((i, int(uncorrectedWindowHeight/2)))
+                if r != 0 and g != 0 and b!=0:
+                    windowX=uncorrectedWindowX+i
+                    break;
+            
+            for i in range(uncorrectedWindowWidth-1, windowX,-1):
+                r,g,b = screenshot.getpixel((i, int(uncorrectedWindowHeight/2)))
+                if r != 0 and g != 0 and b!=0:
+                    tmpWindowRightX = i+uncorrectedWindowX
+                    break;
+            windowWidth=tmpWindowRightX - windowX
+            for i in range(0, uncorrectedWindowHeight):
+                r,g,b = screenshot.getpixel((int(windowWidth/2), i))
+                if r != 0 and g != 0 and b!=0:
+                    windowY = i+uncorrectedWindowY
+                    break;
+            for i in range(uncorrectedWindowHeight-1, windowY,-1):
+                r,g,b = screenshot.getpixel((int(windowWidth/2), i))
+                if r != 0 and g != 0 and b!=0:
+                    tmpWindowBottomY = i+uncorrectedWindowY
+                    break;
+            windowHeight=tmpWindowBottomY - windowY
+            sceneScreenshotCornerY =int(windowHeight /100 * 18.2)+windowY
+            testBottomY=int(windowHeight/100 * 81.5)+windowY
+            sceneScreenshotCornerX = int(windowWidth / 100 * 15.75)+windowX
+            testRightX = int(windowWidth / 100 * 52.25)+windowX
+            sceneScreenshotWidth=testRightX-sceneScreenshotCornerX
+            sceneScreenshotHeight=testBottomY -sceneScreenshotCornerY
+            toToiletMiddle = int(windowWidth / 100 * 3.15)
+            topBorderToToilet = int(windowHeight / 100 * 13.3)
+            leftBorderToToilet = int(windowWidth / 100 * 0.5)
+            toiletToToiletX = int(windowWidth / 100 * 7.371)
+            toiletToToiletY = int(windowHeight / 100 * 21.6)
+            startButtonX = int(windowWidth / 100 * 34) + windowX
+            startButtonY = int(windowHeight / 100 * 95) + windowY
+            startScreenshotCornerX = int(windowWidth / 100 * 20) + windowX
+            startScreenshotCornerY = int(windowHeight / 100 * 6.5) + windowY
 
-        windowX = uncorrectedWindowX
-        windowY = uncorrectedWindowY
-        windowWidth = uncorrectedWindowWidth
-        windowHeight = uncorrectedWindowHeight
-
-        windowDelta= (windowWidth/windowHeight) / (1785/1000)
-    
-        if windowDelta > 1:
-            windowX = int(windowX + (windowWidth - int(windowWidth / windowDelta))/(2000/1000)+4)
-            windowWidth= int(windowWidth / windowDelta)
-        else:
-            windowY = int(windowY + (windowHeight - int(windowHeight * windowDelta))/(2000/1000))
-            windowX +=2
-            windowHeight= int(windowHeight * windowDelta)
-
-        sceneScreenshotCornerY =int(windowHeight /100 * 17.9)+windowY
-        testBottomY=int(windowHeight/100 * 80.5)+windowY
-        sceneScreenshotCornerX = int(windowWidth / 100 * 15.6)+windowX
-        testRightX = int(windowWidth / 100 * 51.8)+windowX
-        sceneScreenshotWidth=testRightX-sceneScreenshotCornerX
-        sceneScreenshotHeight=testBottomY -sceneScreenshotCornerY
-        toToiletMiddle = int(windowWidth / 100 * 3.24)
-        topBorderToToilet = int(windowHeight / 100 * 13.2)
-        leftBorderToToilet = int(windowWidth / 100 * 0.55)
-        toiletToToiletX = int(windowWidth / 100 * 7.25)
-        toiletToToiletY = int(windowHeight / 100 * 21.3)
-        startButtonX = int(windowWidth / 100 * 34) + windowX
-        startButtonY = int(windowHeight / 100 * 95) + windowY
-        startScreenshotCornerX = int(windowWidth / 100 * 20) + windowX
-        startScreenshotCornerY = int(windowHeight / 100 * 6.5) + windowY
-
-        comboX=int(windowWidth / 100 * 53.4) + windowX
-        rightComboX=int(windowWidth / 100 * 59.25) + windowX
-        comboY=int(windowHeight / 100 * 29) + windowY
-        bottomComboY=int(windowHeight / 100 * 70.6) + windowY
-        comboMiddleY = int(windowHeight / 100 * 3.2)
-        comboMiddleX = int (windowHeight / 100 * 3)
-        comboToComboY =  int(windowHeight / 100 * 7.75)
-        comboScreenshotWidth = rightComboX -comboX
-        comboScreenshotHeight = bottomComboY - comboY
+            comboX=int(windowWidth / 100 * 53.9) + windowX
+            rightComboX=int(windowWidth / 100 * 59.85) + windowX
+            comboY=int(windowHeight / 100 * 29.15) + windowY
+            bottomComboY=int(windowHeight / 100 * 71.5) + windowY
+            comboMiddleY = int(windowHeight / 100 * 3.2)
+            comboMiddleX = int (windowHeight / 100 * 3)
+            comboToComboY =  int(windowHeight / 100 * 8)
+            comboScreenshotWidth = rightComboX -comboX
+            comboScreenshotHeight = bottomComboY - comboY
+        except:
+            pass
 
 def showCalibration():
-    initPainters()
-    while True:
-        autoCalibration()
-        paintQuadre(sceneScreenshotCornerX,sceneScreenshotCornerY,0,255,0)
-        paintQuadre(sceneScreenshotCornerX+sceneScreenshotWidth,sceneScreenshotCornerY,0,255,0)
-        paintQuadre(sceneScreenshotCornerX,sceneScreenshotCornerY+sceneScreenshotHeight,0,255,0)
-        paintQuadre(sceneScreenshotCornerX+sceneScreenshotWidth,sceneScreenshotCornerY+sceneScreenshotHeight,0,255,0)
-        paintQuadre(startButtonX,startButtonY,0,255,0)
-        for y in range(topBorderToToilet, sceneScreenshotHeight, toiletToToiletY): # 3 rows
-            for x in range(leftBorderToToilet, sceneScreenshotWidth, toiletToToiletX):
-                paintQuadre(x+sceneScreenshotCornerX,y+sceneScreenshotCornerY,0,255,0)
-                paintQuadre(x+sceneScreenshotCornerX+toToiletMiddle,y+sceneScreenshotCornerY,0,255,0)
-        for x in range(0, 10):
-            paintQuadre(x+startScreenshotCornerX,startScreenshotCornerY,0,255,0)
-        
-        paintQuadre(comboX,comboY,0,255,0)
-        paintQuadre(comboX+comboScreenshotWidth,comboY,0,255,0)
-        paintQuadre(comboX,comboY+comboScreenshotHeight,0,255,0)
-        paintQuadre(comboX+comboScreenshotWidth,comboY+comboScreenshotHeight,0,255,0)
+    try:
+        initPainters()
+        while True:
+            autoCalibration()
+            paintPixel(windowX,windowY,255,0,0)
+            paintPixel(windowX+windowWidth,windowY,255,0,0)
+            paintPixel(windowX,windowY+windowHeight,255,0,0)
+            paintPixel(windowX+windowWidth,windowY+windowHeight,255,0,0)
+            paintPixel(sceneScreenshotCornerX,sceneScreenshotCornerY,0,255,0)
+            paintPixel(sceneScreenshotCornerX+sceneScreenshotWidth,sceneScreenshotCornerY,0,255,0)
+            paintPixel(sceneScreenshotCornerX,sceneScreenshotCornerY+sceneScreenshotHeight,0,255,0)
+            paintPixel(sceneScreenshotCornerX+toToiletMiddle+leftBorderToToilet,sceneScreenshotCornerY+sceneScreenshotHeight,0,255,0)
+            paintPixel(sceneScreenshotCornerX+sceneScreenshotWidth,sceneScreenshotCornerY+sceneScreenshotHeight,0,255,0)
+            paintPixel(startButtonX,startButtonY,0,255,0)
+            for y in range(topBorderToToilet, sceneScreenshotHeight, toiletToToiletY): # 3 rows
+                for x in range(leftBorderToToilet, sceneScreenshotWidth, toiletToToiletX):
+                    paintPixel(x+sceneScreenshotCornerX,y+sceneScreenshotCornerY,0,255,0)
+                    paintPixel(x+sceneScreenshotCornerX+toToiletMiddle,y+sceneScreenshotCornerY,0,255,0)
+            for x in range(0, 10):
+                paintPixel(x+startScreenshotCornerX,startScreenshotCornerY,0,255,0)
+            
+            paintPixel(comboX,comboY,0,255,0)
+            paintPixel(comboX+comboScreenshotWidth,comboY,0,255,0)
+            paintPixel(comboX,comboY+comboScreenshotHeight,0,255,0)
+            paintPixel(comboX+comboScreenshotWidth,comboY+comboScreenshotHeight,0,255,0)
 
-        for y in range(comboMiddleY,comboScreenshotHeight,comboToComboY):
-            paintQuadre(comboX+comboMiddleX,y+comboY,0,255,0)
+            for y in range(comboMiddleY,comboScreenshotHeight,comboToComboY):
+                paintPixel(comboX+comboMiddleX,y+comboY,0,255,0)
+    except Exception as e: 
+        print(e)
 
 def initPainters():
     global dc
@@ -162,11 +183,10 @@ def initPainters():
         #ios
         print("ios not supported")
         os._exit(0)
-def paintQuadre(x,y,r,g,b, size = 1):
-    for i in range(-size,size):
-        for j in range(-size,size):
+def paintPixel(x,y,r,g,b):
+        try:
             if sys.platform == "win32":
-                win32gui.SetPixel(dc, x+i, y+j, win32api.RGB(r, g, b))  # draw red at x,y
+                win32gui.SetPixel(dc, x, y, win32api.RGB(r, g, b))  # draw red at x,y
             elif sys.platform == "linux" or sys.platform == "linux2":
                 #linux
                 print("linux not supported")
@@ -175,6 +195,8 @@ def paintQuadre(x,y,r,g,b, size = 1):
                 #ios
                 print("ios not supported")
                 os._exit(0)
+        except:
+            pass
 
 def main():
     global paused, playOnce, manager

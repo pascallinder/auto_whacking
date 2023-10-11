@@ -1,2 +1,4 @@
-# auto_whacking
-Auto whacking for Farmer Against Potatoes Idle
+# Auto Whacking
+Auto whacking tool for Farmer Against Potatoes Idle
+## Setup
+Install Python 3 
