@@ -1,11 +1,8 @@
-from operator import truediv
 import sys
-from turtle import window_height
 import pyautogui as pg
 import multiprocessing as mp
 import time
 import keyboard
-import ctypes
 import os
 import win32gui
 import win32api 
@@ -13,17 +10,13 @@ import win32api
 MOUSEEVENTF_ABSOLUTE = 0x8000
 MOUSEEVENTF_LEFTDOWN = 0x0002
 MOUSEEVENTF_LEFTUP = 0x0004
-# whack time (edit)
-gameTimer = 60
 # keep track of pause state
 paused = True 
 # keep track of playing once state
 playOnce = False
-# calibration process
-calibrationProcess = None
-# multi process manager 
-manager = None
 
+calibrationProcess = None
+clickerProcess = None 
 def launchAutoclicker():
     counterGreen=0
     appearenceX=-1
@@ -85,6 +78,7 @@ def calculatePositions(uncorrectedWindowX,uncorrectedWindowY, uncorrectedWindowW
         global topBorderToToilet, toToiletMiddle, toiletToToiletX, toiletToToiletY, startButtonX, startButtonY, startScreenshotCornerX, startScreenshotCornerY
         global  comboX, comboY, comboMiddleX,comboMiddleY, comboToComboY, comboScreenshotHeight,comboScreenshotWidth
         global windowX, windowY, windowWidth, windowHeight
+        global comboLabelX, comboLabelY
         try:
             screenshot = pg.screenshot(region=(uncorrectedWindowX, uncorrectedWindowY, uncorrectedWindowWidth, uncorrectedWindowHeight))
             screenshot.save("test.jpg")
@@ -136,6 +130,9 @@ def calculatePositions(uncorrectedWindowX,uncorrectedWindowY, uncorrectedWindowW
             comboToComboY =  int(windowHeight / 100 * 8)
             comboScreenshotWidth = rightComboX -comboX
             comboScreenshotHeight = bottomComboY - comboY
+
+            comboLabelX = int(windowWidth / 100 * 7.5)
+            comboLabelY = int(windowHeight / 100 * 6.5) + windowY
         except:
             pass
 
@@ -160,7 +157,8 @@ def showCalibration():
                     paintPixel(x+sceneScreenshotCornerX+toToiletMiddle,y+sceneScreenshotCornerY,0,255,0)
             for x in range(0, 10):
                 paintPixel(x+startScreenshotCornerX,startScreenshotCornerY,0,255,0)
-            
+            for x in range(0, 10):
+                paintPixel(x+comboLabelX,comboLabelY,0,255,0)
             paintPixel(comboX,comboY,0,255,0)
             paintPixel(comboX+comboScreenshotWidth,comboY,0,255,0)
             paintPixel(comboX,comboY+comboScreenshotHeight,0,255,0)
@@ -199,13 +197,14 @@ def paintPixel(x,y,r,g,b):
             pass
 
 def main():
-    global paused, playOnce, manager
-    clickerProcess = None 
+    global paused, playOnce, clickerProcess
     keySetup()
     while True:
         if clickerProcess != None and clickerProcess.is_alive():
-            clickerProcess.kill()
-            print('[internal] killed sub process')
+            if not hasFinished():
+                time.sleep(3)
+                continue
+            killClickerProcess()
         if not isStartable():
             time.sleep(1)
             continue
@@ -214,19 +213,26 @@ def main():
             clickerProcess.start()
             pg.click(startButtonX, startButtonY)
             playOnce = False
-            time.sleep(gameTimer + 5)
+            time.sleep(33.1)
         time.sleep(1);
 def isStartable():
     autoCalibration()
-    screenshot = pg.screenshot(region=(startScreenshotCornerX, startScreenshotCornerY, 50, 1))
-    for startX in range(0, 10):
-        r,g,b =screenshot.getpixel((startX, 0))
+    screenshot = pg.screenshot(region=(startScreenshotCornerX, startScreenshotCornerY, 10, 1))
+    for x in range(0, 10):
+        r,g,b =screenshot.getpixel((x, 0))
         if r in range(0,10) and g in range(0,10) and b in range(0,10):
             if checkIfWhackPageOpenAndNotPlaying():
                 print("[internal] start is available")
                 return True
     return False
-
+def hasFinished():
+    screenshot = pg.screenshot(region=(comboLabelX, comboLabelY, 10, 1))
+    for x in range(0, 10):
+        r,g,b =screenshot.getpixel((x, 0))
+        if r in range(0,10) and g in range(0,10) and b in range(0,10):
+            return False
+    print("[internal] game has finished")
+    return True
 def checkIfWhackPageOpenAndNotPlaying():
     screenshot = pg.screenshot(region=(sceneScreenshotCornerX, sceneScreenshotCornerY, sceneScreenshotWidth, sceneScreenshotHeight))
     for y in range(topBorderToToilet, sceneScreenshotHeight, toiletToToiletY): 
@@ -265,15 +271,17 @@ def keySetup():
             print('Play once is off')
             time.sleep(0.1)
     def callbackF8(event):
-        global calibrationProcess,manager
+        global calibrationProcess
         if calibrationProcess == None:
-            print('Show claibration')
+            print('Show calibration')
             calibrationProcess = mp.Process(target=showCalibration)
             calibrationProcess.start()
         else:
             killCalibrationProcess()
 
     def callbackF7(event):
+         killClickerProcess()
+         killCalibrationProcess()
          os._exit(0)
     # if key 'f10' is pressed -> pause / unpause
     keyboard.on_press_key("f10", callbackF10)
@@ -290,19 +298,13 @@ def killCalibrationProcess():
         print('Hide calibration')
         calibrationProcess.kill()
         calibrationProcess = None;
+def killClickerProcess():
+    global clickerProcess
+    if(clickerProcess != None):
+        print('[internal] terminate clicker process')
+        clickerProcess.kill()
+        clickerProcess = None;
 
-def clickAtPos(x,y):
-    if sys.platform == "win32":
-        ctypes.windll.user32.mouse_event(MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_LEFTDOWN, x, y, 0, 0)
-        ctypes.windll.user32.mouse_event(MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_LEFTUP, x, y, 0, 0)
-    elif sys.platform == "linux" or sys.platform == "linux2":
-        #linux
-        print("linux not supported")
-        os._exit(0)
-    elif sys.platform == "darwin":
-        #ios
-        print("ios not supported")
-        os._exit(0)
 ### START ###
 if __name__ == '__main__':
     main()
