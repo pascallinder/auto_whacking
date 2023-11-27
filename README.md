@@ -40,3 +40,8 @@ That's it. You are good to go.
 - Statistics as logs that show distribution of potatoes and the amount of clicks
 - GUI with buttons and showing log entries
 - Auto upgrading whack upgrates
+
+## FAQ
+- 
+
+Please submit unanswered questions, issues or bugs here on github.

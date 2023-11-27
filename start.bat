@@ -1,0 +1,1 @@
+python ./whack.py
