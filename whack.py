@@ -119,7 +119,7 @@ def calculatePositions(uncorrectedWindowX,uncorrectedWindowY, uncorrectedWindowW
             startButtonX = int(windowWidth / 100 * 34) + windowX
             startButtonY = int(windowHeight / 100 * 95) + windowY
             startScreenshotCornerX = int(windowWidth / 100 * 20) + windowX
-            startScreenshotCornerY = int(windowHeight / 100 * 6.7) + windowY
+            startScreenshotCornerY = int(windowHeight / 100 * 6.5) + windowY
 
             comboX=int(windowWidth / 100 * 53.9) + windowX
             rightComboX=int(windowWidth / 100 * 59.85) + windowX
@@ -131,7 +131,7 @@ def calculatePositions(uncorrectedWindowX,uncorrectedWindowY, uncorrectedWindowW
             comboScreenshotWidth = rightComboX -comboX
             comboScreenshotHeight = bottomComboY - comboY
 
-            comboLabelX = int(windowWidth / 100 * 7.5)
+            comboLabelX = int(windowWidth / 100 * 4.5) + windowX
             comboLabelY = int(windowHeight / 100 * 6.5) + windowY
         except:
             pass
@@ -155,10 +155,12 @@ def showCalibration():
                 for x in range(leftBorderToToilet, sceneScreenshotWidth, toiletToToiletX):
                     paintPixel(x+sceneScreenshotCornerX,y+sceneScreenshotCornerY,0,255,0)
                     paintPixel(x+sceneScreenshotCornerX+toToiletMiddle,y+sceneScreenshotCornerY,0,255,0)
-            for x in range(0, 10):
-                paintPixel(x+startScreenshotCornerX,startScreenshotCornerY,0,255,0)
-            for x in range(0, 10):
-                paintPixel(x+comboLabelX,comboLabelY,0,255,0)
+            for x in range(-10, 10):
+                for y in range(-10, 10):
+                    paintPixel(x+startScreenshotCornerX,y+startScreenshotCornerY,0,255,0)
+            for x in range(-10, 10):
+                for y in range(-10, 10):
+                    paintPixel(x+comboLabelX,y+comboLabelY,0,255,0)
             paintPixel(comboX,comboY,0,255,0)
             paintPixel(comboX+comboScreenshotWidth,comboY,0,255,0)
             paintPixel(comboX,comboY+comboScreenshotHeight,0,255,0)
@@ -217,20 +219,22 @@ def main():
         time.sleep(1);
 def isStartable():
     autoCalibration()
-    screenshot = pg.screenshot(region=(startScreenshotCornerX, startScreenshotCornerY, 10, 1))
-    for x in range(0, 10):
-        r,g,b =screenshot.getpixel((x, 0))
-        if r in range(0,10) and g in range(0,10) and b in range(0,10):
-            if checkIfWhackPageOpenAndNotPlaying():
-                print("[internal] start is available")
-                return True
+    screenshot = pg.screenshot(region=(startScreenshotCornerX, startScreenshotCornerY, 10, 10))
+    for x in range(-10, 10):
+        for y in range(-10, 10):
+            r,g,b =screenshot.getpixel((x, y))
+            if r in range(0,10) and g in range(0,10) and b in range(0,10):
+                if checkIfWhackPageOpenAndNotPlaying():
+                    print("[internal] start is available")
+                    return True
     return False
 def hasFinished():
     screenshot = pg.screenshot(region=(comboLabelX, comboLabelY, 10, 1))
-    for x in range(0, 10):
-        r,g,b =screenshot.getpixel((x, 0))
-        if r in range(0,10) and g in range(0,10) and b in range(0,10):
-            return False
+    for x in range(-10, 10):
+        for y in range(-10, 10):
+            r,g,b =screenshot.getpixel((x, y))
+            if r in range(0,10) and g in range(0,10) and b in range(0,10):
+                return False
     print("[internal] game has finished")
     return True
 def checkIfWhackPageOpenAndNotPlaying():
