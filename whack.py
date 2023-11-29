@@ -119,7 +119,7 @@ def calculatePositions(uncorrectedWindowX,uncorrectedWindowY, uncorrectedWindowW
             startButtonX = int(windowWidth / 100 * 34) + windowX
             startButtonY = int(windowHeight / 100 * 95) + windowY
             startScreenshotCornerX = int(windowWidth / 100 * 20) + windowX
-            startScreenshotCornerY = int(windowHeight / 100 * 6.5) + windowY
+            startScreenshotCornerY = int(windowHeight / 100 * 6.7) + windowY
 
             comboX=int(windowWidth / 100 * 53.9) + windowX
             rightComboX=int(windowWidth / 100 * 59.85) + windowX
